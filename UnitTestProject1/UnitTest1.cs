@@ -33,6 +33,7 @@ namespace Supermarket.UnitTests
             skus_to_buy = new List<string>() { "A99", "B15", "C40", "T34" };
 
             // Act
+            supermarket_checkout.totalPrice();
 
             // Assert
             Assert.AreEqual(null,null);

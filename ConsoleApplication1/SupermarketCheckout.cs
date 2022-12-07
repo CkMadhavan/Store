@@ -5,20 +5,21 @@ namespace Supermarket
 {
     public class SupermarketCheckout
     {
-        static List<string> skus = new List<string>();
-        static Dictionary<string, int> prices = new Dictionary<string, int>();
-
-        // Using a tuple of number of items eligible for discount and the new amount as value
-        static Dictionary<string, Tuple<int, int>> discounts = new Dictionary<string, Tuple<int, int>>();
-
-        static List<string> skus_to_buy = new List<string>();
-
+        
         public static void Main(string[] args)
         {
             // Main Function
 
+            List<string> skus = new List<string>();
+            Dictionary<string, int> prices = new Dictionary<string, int>();
+
+            // Using a tuple of number of items eligible for discount and the new amount as value
+            Dictionary<string, Tuple<int, int>> discounts = new Dictionary<string, Tuple<int, int>>();
+
+            List<string> skus_to_buy = new List<string>();
+
             Console.WriteLine("SUPERMARKET CHECKOUT\n");
-        not_m_or_h_label:
+            not_m_or_h_label:
             Console.WriteLine("Do you wish to enter items Manually or use Hard-coded values? (m/h)?");
             string m_or_h = Console.ReadLine();  // Get user input
 
@@ -28,11 +29,17 @@ namespace Supermarket
             {  // Switch-case to handle different inputs
 
                 case "m":
-                    getInputs();
+                    var inputsReturnGet = getInputs();
+                    skus = inputsReturnGet.Item1;
+                    prices = inputsReturnGet.Item2;
+                    discounts = inputsReturnGet.Item3;
                     break;
 
                 case "h":
-                    hardInputs();
+                    var inputsReturnHard = hardInputs();
+                    skus = inputsReturnHard.Item1;
+                    prices = inputsReturnHard.Item2;
+                    discounts = inputsReturnHard.Item3;
                     break;
 
                 default:
@@ -41,17 +48,20 @@ namespace Supermarket
 
             }
 
-            toCart();
+            skus_to_buy = toCart(skus);
 
-            totalPrice();
+            var total = totalPrice(skus, prices, discounts, skus_to_buy);
+            Console.WriteLine("\nTotal Price : {0}", total);
+            Console.Read();  // Wait to see output
 
         }
 
-        public static void toCart()
+        public static List<string> toCart(List<string> skus)
         {
             // Add items to cart
 
             string current_sku_buy = "";
+            var skus_to_buy = new List<string>();
 
             Console.WriteLine("\n\n------------------------------------------------------------------------------------------------");
             Console.WriteLine("Proceeding to checkout. Scan items you want to buy by typing their SKU one by one. Press enter without typing anything if you're done");
@@ -73,9 +83,11 @@ namespace Supermarket
 
             }
 
+            return skus_to_buy;
+
         }
 
-        public static void totalPrice()
+        public static int totalPrice(List<string> skus, Dictionary<string, int> prices, Dictionary<string, Tuple<int, int>> discounts, List<string> skus_to_buy)
         {
             // Calculate total price
 
@@ -123,17 +135,19 @@ namespace Supermarket
 
             }
 
-            Console.WriteLine("\nTotal Price : {0}", total);
-            Console.Read();  // Wait to see output
+            return total;
 
         }
 
-        public static void getInputs()
+        public static Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>> getInputs()
         {
             // Get manual inputs
 
             string current_sku = "";
             string current_discount = "";
+            var skus = new List<string>();
+            var prices = new Dictionary<string, int>();
+            var discounts = new Dictionary<string, Tuple<int, int>>();
 
 
             // Get SKUs
@@ -226,11 +240,17 @@ namespace Supermarket
 
             }
 
+            return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>> (skus,prices,discounts);
+
         }
 
-        public static void hardInputs()
+        public static Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>> hardInputs()
         {
             // Hard-code inputs
+
+            var skus = new List<string>();
+            var prices = new Dictionary<string, int>();
+            var discounts = new Dictionary<string, Tuple<int, int>>();
 
             skus = new List<string>() { "A99", "B15", "C40", "T34" };
 
@@ -258,6 +278,8 @@ namespace Supermarket
                 }
 
             }
+
+            return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>>(skus, prices, discounts);
 
         }
 
