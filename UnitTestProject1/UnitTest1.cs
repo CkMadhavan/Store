@@ -47,10 +47,6 @@ namespace Supermarket.UnitTests
             Dictionary<string, Tuple<int, int>> discounts = new Dictionary<string, Tuple<int, int>>();
             List<string> skus_to_buy = new List<string>();
 
-            skus = new List<string>() {};
-
-            skus_to_buy = new List<string>() {};
-
             // Act
             int total = SupermarketCheckout.totalPrice(skus, prices, discounts, skus_to_buy);
             Console.WriteLine(total);
@@ -79,8 +75,6 @@ namespace Supermarket.UnitTests
             discounts.Add(skus[1], Tuple.Create(2, 45));
             discounts.Add(skus[2], Tuple.Create(0, 0));
             discounts.Add(skus[3], Tuple.Create(0, 0));
-
-            skus_to_buy = new List<string>() { };
 
             // Act
             int total = SupermarketCheckout.totalPrice(skus, prices, discounts, skus_to_buy);
@@ -120,5 +114,6 @@ namespace Supermarket.UnitTests
             // Assert
             Assert.AreEqual(total, 364);  // (1*130) (A99) + (1*45 + 1*30) (B15) + 1*60 (C40) + 1*99 (T34) = 364
         }
+
     }
 }

@@ -51,7 +51,7 @@ namespace Supermarket
                     break;
 
                 default:
-                    Console.WriteLine("\nPlease Enter m or h");
+                    Console.WriteLine("\nPlease Enter m or h or f");
                     goto not_m_or_h_label;  // Get user input again
 
             }
@@ -206,16 +206,16 @@ namespace Supermarket
             Console.WriteLine("\nThe following prices have been recorded for the items");
             for (int i = 0; i < prices.Count; i++)
             {
-                Console.WriteLine("{0} - {1}", skus[i], prices[skus[i]]);
+                Console.WriteLine("{0} for {1}", skus[i], prices[skus[i]]);
             }
 
 
             // Get Discounts
             Console.WriteLine("------------------------------------------------------------------------------------------------");
             Console.WriteLine("Enter Discount for each element one by one in the following format :");
-            Console.WriteLine("Number of items eligible for discount-New amount for those many items");
-            Console.WriteLine("For example, if the weekly discount is 3 Apples for 130, enter '3-130' in the corresponding row");
-            Console.WriteLine("Enter '0-0' if no discount is applicable for that particular item");
+            Console.WriteLine("<Number of items eligible for discount> for <New amount for those many items>");
+            Console.WriteLine("For example, if the weekly discount is 3 Apples for 130, enter '3 for 130' in the corresponding row");
+            Console.WriteLine("Enter '0 for 0' if no discount is applicable for that particular item");
 
             int ctr = 0;
             while (skus.Count != discounts.Count)
@@ -223,7 +223,7 @@ namespace Supermarket
                 try
                 {
                     current_discount = Console.ReadLine();
-                    Tuple<int, int> value = Tuple.Create(Convert.ToInt32(current_discount.Split('-')[0]), Convert.ToInt32(current_discount.Split('-')[1]));
+                    Tuple<int, int> value = Tuple.Create(Convert.ToInt32(current_discount.Split(new string[] { " for " }, StringSplitOptions.None)[0]), Convert.ToInt32(current_discount.Split(new string[] { " for " }, StringSplitOptions.None)[1]));
                     discounts.Add(skus[ctr], value);
                     ctr += 1;
                 }
@@ -299,46 +299,60 @@ namespace Supermarket
             var prices = new Dictionary<string, int>();
             var discounts = new Dictionary<string, Tuple<int, int>>();
 
-            skus = new List<string>() { "A99", "B15", "C40", "T34" };
+            ask_for_file_path:
+            Console.WriteLine("Enter absolute file path of csv file containing the input data (See examplefile.csv for Example)");
+            string file_path_absolute = Console.ReadLine();
 
-            prices.Add(skus[0], 50);
-            prices.Add(skus[1], 30);
-            prices.Add(skus[2], 60);
-            prices.Add(skus[3], 99);
+            try{
 
-            discounts.Add(skus[0], Tuple.Create(3, 130));
-            discounts.Add(skus[1], Tuple.Create(2, 45));
-            discounts.Add(skus[2], Tuple.Create(0, 0));
-            discounts.Add(skus[3], Tuple.Create(0, 0));
-
-            using (var reader = new StreamReader(@"examplefile.csv"))
-            {
-                while (!reader.EndOfStream)
+                using (var reader = new StreamReader(file_path_absolute))
                 {
-                    var line = reader.ReadLine();
-                    var values = line.Split(',');
+                    int counter = 0;
+                    while (!reader.EndOfStream)
+                    {
+                        string line = reader.ReadLine();
+                        var values = line.Split(',');
 
-                    skus.Add(values[0]);
-                    prices.Add(values[0], Int32.Parse(values[1]));
+                        if (counter != 0)  // Skip header
+                        {
+                            try
+                            {
+                                skus.Add(values[0]);
+                                prices.Add(values[0], Int32.Parse(values[1]));
+                                var discountString = values[2];
+                                discounts.Add(values[0], new Tuple<int, int>(Int32.Parse(discountString.Split(new string[] { " for " }, StringSplitOptions.None)[0]), Int32.Parse(discountString.Split(new string[] { " for " }, StringSplitOptions.None)[1])));
+                            }
+                            catch 
+                            {
+                                Console.WriteLine("File not in required format regarding the input data, please refer the examplefile.csv for the format and enter a valid file");
+                                goto ask_for_file_path; 
+                            }
+                        }
+                        counter += 1;
+                    }
                 }
+
+                Console.WriteLine("\nThe following prices and discounts have been recorded for the items");
+                for (int i = 0; i < discounts.Count; i++)
+                {
+                    Tuple<int, int> discount = discounts[skus[i]];
+                    if (discount.Item1 == 0)
+                    {
+                        Console.WriteLine("{0} - {1}", skus[i], prices[skus[i]]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("{0} - {1} - {2} for {3}", skus[i], prices[skus[i]], discount.Item1, discount.Item2);
+                    }
+
+                }
+
+                return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>>(skus, prices, discounts);
             }
-
-            Console.WriteLine("\nThe following prices and discounts have been recorded for the items");
-            for (int i = 0; i < discounts.Count; i++)
-            {
-                Tuple<int, int> discount = discounts[skus[i]];
-                if (discount.Item1 == 0)
-                {
-                    Console.WriteLine("{0} - {1}", skus[i], prices[skus[i]]);
-                }
-                else
-                {
-                    Console.WriteLine("{0} - {1} - {2} for {3}", skus[i], prices[skus[i]], discount.Item1, discount.Item2);
-                }
-
+            catch {
+                Console.WriteLine("File not found, please enter a valid absolute file path");
+                goto ask_for_file_path;
             }
-
-            return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>>(skus, prices, discounts);
 
         }
 
