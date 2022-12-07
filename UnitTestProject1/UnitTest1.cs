@@ -8,11 +8,9 @@ namespace Supermarket.UnitTests
     public class SupermarketTest
     {
         [TestMethod]
-        public void totalPrice_nodiscount_220()
+        public void totalPrice_nodiscount_319()
         {
             // Arrange
-            var supermarket_checkout = new SupermarketCheckout();
-
             List<string> skus = new List<string>();
             Dictionary<string, int> prices = new Dictionary<string, int>();
             Dictionary<string, Tuple<int, int>> discounts = new Dictionary<string, Tuple<int, int>>();
@@ -25,18 +23,20 @@ namespace Supermarket.UnitTests
             prices.Add(skus[2], 60);
             prices.Add(skus[3], 99);
 
-            discounts.Add(skus[0], Tuple.Create(3, 130));
-            discounts.Add(skus[1], Tuple.Create(2, 45));
+            discounts.Add(skus[0], Tuple.Create(0, 0));
+            discounts.Add(skus[1], Tuple.Create(0, 0));
             discounts.Add(skus[2], Tuple.Create(0, 0));
             discounts.Add(skus[3], Tuple.Create(0, 0));
 
-            skus_to_buy = new List<string>() { "A99", "B15", "C40", "T34" };
+            skus_to_buy = new List<string>() { "A99", "B15", "A99", "T34" , "C40", "B15" };
 
             // Act
-            
+            int total = SupermarketCheckout.totalPrice(skus, prices, discounts, skus_to_buy);
+            Console.WriteLine(total);
 
             // Assert
-            Assert.AreEqual(null,null);
+            Assert.AreEqual(total, 319);
         }
+
     }
 }
