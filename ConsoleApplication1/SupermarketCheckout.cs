@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Supermarket
 {
@@ -20,12 +21,12 @@ namespace Supermarket
 
             Console.WriteLine("SUPERMARKET CHECKOUT\n");
             not_m_or_h_label:
-            Console.WriteLine("Do you wish to enter items Manually or use Hard-coded values? (m/h)?");
-            string m_or_h = Console.ReadLine();  // Get user input
+            Console.WriteLine("Do you wish to enter items Manually or use Hard-coded values or read from a File? (m/h/f)?");
+            string m_or_h_or_f = Console.ReadLine();  // Get user input
 
             Console.WriteLine('\n');
 
-            switch (m_or_h)
+            switch (m_or_h_or_f)
             {  // Switch-case to handle different inputs
 
                 case "m":
@@ -40,6 +41,13 @@ namespace Supermarket
                     skus = inputsReturnHard.Item1;
                     prices = inputsReturnHard.Item2;
                     discounts = inputsReturnHard.Item3;
+                    break;
+
+                case "f":
+                    var inputsReturnFile = fileInputs();
+                    skus = inputsReturnFile.Item1;
+                    prices = inputsReturnFile.Item2;
+                    discounts = inputsReturnFile.Item3;
                     break;
 
                 default:
@@ -282,6 +290,59 @@ namespace Supermarket
             return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>>(skus, prices, discounts);
 
         }
+
+        public static Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>> fileInputs()
+        {
+            // Read inputs from file
+
+            var skus = new List<string>();
+            var prices = new Dictionary<string, int>();
+            var discounts = new Dictionary<string, Tuple<int, int>>();
+
+            skus = new List<string>() { "A99", "B15", "C40", "T34" };
+
+            prices.Add(skus[0], 50);
+            prices.Add(skus[1], 30);
+            prices.Add(skus[2], 60);
+            prices.Add(skus[3], 99);
+
+            discounts.Add(skus[0], Tuple.Create(3, 130));
+            discounts.Add(skus[1], Tuple.Create(2, 45));
+            discounts.Add(skus[2], Tuple.Create(0, 0));
+            discounts.Add(skus[3], Tuple.Create(0, 0));
+
+            using (var reader = new StreamReader(@"examplefile.csv"))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+
+                    skus.Add(values[0]);
+                    prices.Add(values[0], Int32.Parse(values[1]));
+                }
+            }
+
+            Console.WriteLine("\nThe following prices and discounts have been recorded for the items");
+            for (int i = 0; i < discounts.Count; i++)
+            {
+                Tuple<int, int> discount = discounts[skus[i]];
+                if (discount.Item1 == 0)
+                {
+                    Console.WriteLine("{0} - {1}", skus[i], prices[skus[i]]);
+                }
+                else
+                {
+                    Console.WriteLine("{0} - {1} - {2} for {3}", skus[i], prices[skus[i]], discount.Item1, discount.Item2);
+                }
+
+            }
+
+            return new Tuple<List<string>, Dictionary<string, int>, Dictionary<string, Tuple<int, int>>>(skus, prices, discounts);
+
+        }
+
+        
 
     }
 }
